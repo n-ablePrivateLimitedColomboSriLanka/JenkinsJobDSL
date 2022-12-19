@@ -1,25 +1,19 @@
-pipelineJob(job_name) {
+import groovy.text.SimpleTemplateEngine
+
+def fileContents = readFileFromWorkspace "Jenkinsfile.target"
+
+def engine = new SimpleTemplateEngine()
+template = engine.createTemplate(fileContents).make(binding.getVariables()).toString()
+
+folder(job_name) {
+    displayName(job_name)
+    description(job_name)
+}
+
+pipelineJob("${job_name}/Release") {
   properties {
-    githubProjectUrl('https://github.com/nable-integration-cicd-dev-mirror/JAVA_SAMPLE_SPRING.git')
+    githubProjectUrl(github_project_url)
     parameters {
-      parameterDefinitions {
-        string {
-          name('release_branch')
-          defaultValue('master')
-        }
-        string {
-          name('artifact_repository_url')
-          defaultValue('http://nexus:8081/repository/maven-testing/')
-        }
-        string {
-          name('artifact_repository_id')
-          defaultValue('nexus')
-        }
-        string {
-          name('git_repository_url')
-          defaultValue('https://github.com/nable-integration-cicd-dev-mirror/JAVA_SAMPLE_SPRING.git/')
-        }
-      }
       pipelineTriggers {
         triggers {
           GenericTrigger {
@@ -36,7 +30,7 @@ pipelineJob(job_name) {
               }
             }
             regexpFilterText('$repository_full_name/$reference')
-            regexpFilterExpression('nable-integration-cicd-dev-mirror\\/JAVA_SAMPLE_SPRING\\/refs\\/heads\\/master')
+            regexpFilterExpression(repository_branch_filter_regex)
             tokenCredentialId('generic_webhook_token')
           }
         }
@@ -45,28 +39,8 @@ pipelineJob(job_name) {
   }
   definition {
       cps {
-        script('''
-
-          pipeline {
-              agent any
-              stages {
-                  stage('Checkout SCM') {
-                      steps {
-                          cleanWs()
-                          git credentialsId: 'jenkins_github_app', url: git_repository_url
-                      }
-                  }
-                  stage('Deploy Artifact') {
-                      steps {
-                          withMaven(maven: 'maven3', mavenSettingsConfig: 'maven3-settings', publisherStrategy: 'EXPLICIT', options: [artifactsPublisher(disabled: false)]) {
-                              sh "mvn clean package deploy -DaltDeploymentRepository=${artifact_repository_id}::default::${artifact_repository_url} -Dmaven.test.skip=true"
-                          }
-                      }
-                  }
-              }
-          }
-		'''
-        )
+        script(template)
+        sandbox()
       }
   }
 }
