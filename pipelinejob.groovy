@@ -1,6 +1,6 @@
 import groovy.text.SimpleTemplateEngine
 
-def fileContents = readFileFromWorkspace "Jenkinsfile.target"
+def fileContents = readFileFromWorkspace "Jenkinsfile.${project_type.toLowerCase().trim()}"
 
 def engine = new SimpleTemplateEngine()
 template = engine.createTemplate(fileContents).make(binding.getVariables()).toString()
