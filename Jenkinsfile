@@ -1,21 +1,5 @@
 pipeline {
     agent any
-    parameters {
-        string(
-                name: 'job_name',
-                description: 'Name of the job being generated'
-        )
-        string(
-                name: 'artifact_repo_url',
-                defaultValue: 'http://nexus/repository/maven-java-releases/',
-                description: 'Repository where the artifacat will be published to'
-        )
-        string(
-                name: 'trunk_branch',
-                defaultValue: 'master',
-                description: 'The trunk branch to which feature branches are merged to'
-        )
-    }
     stages {
 
         stage('Preprocess') {
