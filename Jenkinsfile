@@ -85,8 +85,6 @@ pipeline {
                             project_type: repository['project_type'],
                             github_project_url: repository['repository_clone_url'],
                             repository_branch_filter_regex: repository['repository_branch_filter_regex'],
-                            artifact_repo_url: artifact_repo_url,
-                            artifact_repo_id: 'nexus',
                             git_repo_url: repository['repository_clone_url']
                         ]
 
