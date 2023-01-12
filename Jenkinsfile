@@ -7,16 +7,16 @@ pipeline {
             steps {
                 script {
                     repositories = []
-                    if(x_github_event == 'push') {
+                    if (x_github_event == 'none' || x_github_event == 'installation') {
+                        gitHubOrgUtils = new GitHubOrgUtils('https://api.github.com', 'jenkins_github_app', 'nable-integration-cicd-dev-mirror')
+                        repositories = gitHubOrgUtils.getAllRepositories()
+                    } else if (x_github_event == 'push') {
                         repository = [
                             repository_full_name: repository_full_name,
                             repository_clone_url: repository_clone_url,
                             repository_name: repository_name,
                         ]
                         repositories.add(repository)
-                    } else if (x_github_event == 'installation') {
-                        gitHubOrgUtils = new GitHubOrgUtils('https://api.github.com', 'jenkins_github_app', 'nable-integration-cicd-dev-mirror')
-                        repositories = gitHubOrgUtils.getAllRepositories()
                     }
 
                     for(repository in repositories) {
