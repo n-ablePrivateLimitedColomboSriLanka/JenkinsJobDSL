@@ -7,7 +7,7 @@ template = engine.createTemplate(fileContents).make(binding.getVariables()).toSt
 
 folder(job_name) {
     displayName(job_name)
-    description(job_name)
+    description("${job_name}\nlabels:${project_type.toLowerCase().trim()}")
 }
 
 pipelineJob("${job_name}/Release") {
