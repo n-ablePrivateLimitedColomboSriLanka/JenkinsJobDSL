@@ -8,7 +8,7 @@ pipeline {
                 script {
                     repositories = []
                     if (x_github_event == 'none' || x_github_event == 'installation') {
-                        gitHubOrgUtils = new GitHubOrgUtils('https://api.github.com', 'jenkins_github_app', 'nable-integration-cicd-dev-mirror')
+                        gitHubOrgUtils = new GitHubOrgUtils('https://api.github.com', params.github_app_cred_id, params.github_org_name)
                         repositories = gitHubOrgUtils.getAllRepositories()
                     } else if (x_github_event == 'push') {
                         repository = [
@@ -31,14 +31,14 @@ pipeline {
         stage('Checkout Build Scripts') {
             steps {
                 checkout scmGit(
-                                branches: [[name: "*/buildtest"]],
+                                branches: [[name: "*/master"]],
                                 extensions: [
                                     cloneOption(depth: 1, noTags: true, reference: '', shallow: true),
                                     [$class: 'IgnoreNotifyCommit'],
-                                    [$class: 'RelativeTargetDirectory', relativeTargetDir: "buildscripts"]
+                                    [$class: 'RelativeTargetDirectory', relativeTargetDir: "build_scripts"]
                                 ],
                                 userRemoteConfigs: [
-                                    [credentialsId: 'jenkins_github_app', url:  'https://github.com/IreshMM/iresh-s-buildscripts.git']
+                                    [credentialsId: params.github_app_cred_id, url: params.build_scripts_repo]
                                 ]
                          )
             }
@@ -58,10 +58,10 @@ pipeline {
                                         [$class: 'RelativeTargetDirectory', relativeTargetDir: repository['repository_full_name']]
                                     ],
                                     userRemoteConfigs: [
-                                        [credentialsId: 'jenkins_github_app', url: repository['repository_clone_url']]
+                                        [credentialsId: params.github_app_cred_id, url: repository['repository_clone_url']]
                                     ]
                              )
-                        project_type = sh(script: "./buildscripts/determineprojecttype.sh ${repository['repository_full_name']}", returnStdout: true).trim()
+                        project_type = sh(script: "./build_scripts/determineprojecttype.sh ${repository['repository_full_name']}", returnStdout: true).trim()
                         if (project_type == 'UNDEFINED') { 
                             echo 'Unable to determine project type to be whether JAVA or ACE'
                             continue
@@ -74,7 +74,6 @@ pipeline {
                 }
             }
         }
-                    
 
         stage('Create Jobs') {
             steps {
@@ -85,7 +84,10 @@ pipeline {
                             project_type: repository['project_type'],
                             github_project_url: repository['repository_clone_url'],
                             repository_branch_filter_regex: repository['repository_branch_filter_regex'],
-                            git_repo_url: repository['repository_clone_url']
+                            git_repo_url: repository['repository_clone_url'],
+                            github_app_cred_id: params.github_app_cred_id,
+                            build_scripts_repo: params.build_scripts_repo,
+                            ace_shared_lib_index_url: params.ace_shared_lib_index_url
                         ]
 
                     }
