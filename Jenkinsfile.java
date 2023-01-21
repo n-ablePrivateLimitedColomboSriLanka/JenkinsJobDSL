@@ -12,4 +12,5 @@ javarelease {
         artifactRepositoriesJSONDefaultValue = maven_java_artifact_repositories_json 
         gitRepositoryUrlDefaultValue = "${git_repo_url}"
         githubCredentialsIdDefaultValue = "${github_app_cred_id}"
+        releaseBranchDefaultValue = "${trunk_branch}"
 }

@@ -14,4 +14,5 @@ acerelease {
         sharedLibIndexUrlDefaultValue = "${ace_shared_lib_index_url}"
         githubCredentialsIdDefaultValue = "${github_app_cred_id}"
         aceBuildScriptsRepositoryDefaultValue = "${build_scripts_repo}"
+        releaseBranchDefaultValue = "${trunk_branch}"
 }

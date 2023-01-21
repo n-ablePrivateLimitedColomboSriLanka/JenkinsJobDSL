@@ -87,7 +87,8 @@ pipeline {
                             git_repo_url: repository['repository_clone_url'],
                             github_app_cred_id: params.github_app_cred_id,
                             build_scripts_repo: params.build_scripts_repo,
-                            ace_shared_lib_index_url: params.ace_shared_lib_index_url
+                            ace_shared_lib_index_url: params.ace_shared_lib_index_url,
+                            trunk_branch: params.trunk_branch
                         ]
 
                     }
