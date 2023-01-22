@@ -50,17 +50,22 @@ pipeline {
                 script {
                     processed_repos = []
                     for(repository in repositories) {
-                        checkout scmGit(
-                                    branches: [[name: "*/${trunk_branch}"]],
-                                    extensions: [
-                                        cloneOption(depth: 1, noTags: true, reference: '', shallow: true),
-                                        [$class: 'IgnoreNotifyCommit'],
-                                        [$class: 'RelativeTargetDirectory', relativeTargetDir: repository['repository_full_name']]
-                                    ],
-                                    userRemoteConfigs: [
-                                        [credentialsId: params.github_app_cred_id, url: repository['repository_clone_url']]
-                                    ]
-                             )
+                        try {
+                            checkout scmGit(
+                                        branches: [[name: "*/${trunk_branch}"]],
+                                        extensions: [
+                                            cloneOption(depth: 1, noTags: true, reference: '', shallow: true),
+                                            [$class: 'IgnoreNotifyCommit'],
+                                            [$class: 'RelativeTargetDirectory', relativeTargetDir: repository['repository_full_name']]
+                                        ],
+                                        userRemoteConfigs: [
+                                            [credentialsId: params.github_app_cred_id, url: repository['repository_clone_url']]
+                                        ]
+                                 )
+                        } catch (err) {
+                            echo 'Unable to clone the branch. Please check the whether branch exists!'
+                            continue
+                        }
                         project_type = sh(script: "./build_scripts/determineprojecttype.sh ${repository['repository_full_name']}", returnStdout: true).trim()
                         if (project_type == 'UNDEFINED') { 
                             echo 'Unable to determine project type to be whether JAVA or ACE'
