@@ -8,8 +8,17 @@ pipeline {
                 script {
                     repositories = []
                     if (x_github_event == 'none' || x_github_event == 'installation') {
-                        gitHubOrgUtils = new GitHubOrgUtils('https://api.github.com', params.github_app_cred_id, params.github_org_name)
-                        repositories = gitHubOrgUtils.getAllRepositories()
+                        if (params.repository_clone_url) {
+                            repository = [
+                                repository_full_name: params.repository_clone_url.split('/')[3],
+                                repository_clone_url: params.repository_clone_url,
+                                repository_name: params.repository_clone_url.split('/')[4].split('\\.')[0]
+                            ]
+                            repositories.add(repository)
+                        } else {
+                            gitHubOrgUtils = new GitHubOrgUtils('https://api.github.com', params.github_app_cred_id, params.github_org_name)
+                            repositories = gitHubOrgUtils.getAllRepositories()
+                        }
                     } else if (x_github_event == 'push') {
                         repository = [
                             repository_full_name: repository_full_name,
