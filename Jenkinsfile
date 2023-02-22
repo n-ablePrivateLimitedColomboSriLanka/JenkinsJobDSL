@@ -9,10 +9,12 @@ pipeline {
                     repositories = []
                     if (x_github_event == 'none' || x_github_event == 'installation') {
                         if (params.repository_clone_url) {
+                            clone_url_parts = params.repository_clone_url.split('/')
+                            repository_name = clone_url_parts[4].split('\\.')[0]
                             repository = [
-                                repository_full_name: params.repository_clone_url.split('/')[3],
+                                repository_full_name: "${clone_url_parts[3]}/${repository_name}",
                                 repository_clone_url: params.repository_clone_url,
-                                repository_name: params.repository_clone_url.split('/')[4].split('\\.')[0]
+                                repository_name: repository_name
                             ]
                             repositories.add(repository)
                         } else {
